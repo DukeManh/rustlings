@@ -5,14 +5,36 @@
 // construct to `Option` that can be used to express error conditions. Let's use it!
 // Execute `rustlings hint errors1` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
+use std::error::Error;
+use std::fmt;
 
-pub fn generate_nametag_text(name: String) -> Option<String> {
+#[derive(Debug)]
+struct NegativeNum;
+
+impl Error for NegativeNum {}
+
+impl fmt::Display for NegativeNum {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Not a positive number")
+    }
+}
+
+pub fn parse_positive(s: String) -> Result<i32, Box<dyn Error>> {
+    s.parse::<i32>().map_err(|e| e.into()).and_then(|v| {
+        if v > 0 {
+            Ok(v)
+        } else {
+            Err(NegativeNum.into())
+        }
+    })
+}
+
+pub fn generate_nametag_text(name: String) -> Result<String, String> {
     if name.is_empty() {
         // Empty names aren't allowed.
-        None
+        Err("`name` was empty; it must be nonempty.".to_string())
     } else {
-        Some(format!("Hi! My name is {}", name))
+        Ok(format!("Hi! My name is {}", name))
     }
 }
 
